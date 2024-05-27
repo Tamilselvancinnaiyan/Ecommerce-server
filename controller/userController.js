@@ -58,6 +58,41 @@ const generateToken = require("../config/jwtToken")
         console.error("Login Error:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
-});
+    
+ });
 
-module.exports = {createUser, loginUser}
+ const getAllusers = asyncHandler(async(req, res) => {
+    try {
+        const getusers = await User.find().select('-password');
+        res.json(getusers)
+
+    } catch (error) {
+        throw new Error(error)
+    }
+ });
+
+ const getUser = asyncHandler(async(req, res) => {
+    try {
+        const { id } =req.params
+        const user = await User.findById(id).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json(user);
+    } catch (error) {
+        throw new Error(error)
+    }
+ });
+
+ const findUser = asyncHandler(async (req, res) =>{
+    if(findUser &&){
+
+    }
+ });
+
+ const updateUser = asyncHandler(async (req, res) =>{
+
+ });
+module.exports = {createUser, loginUser, getAllusers, getUser, findUser, updateUser}
