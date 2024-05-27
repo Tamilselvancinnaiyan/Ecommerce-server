@@ -20,6 +20,10 @@ var userSchema = new mongoose.Schema({
         type:String,
         required:[true, 'Please enter a password'],
     },
+    isAdmin:{
+        type: String,
+        default: "user"
+    },
 },
 {
     timestamps: true,

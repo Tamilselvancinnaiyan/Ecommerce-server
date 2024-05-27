@@ -1,6 +1,8 @@
-const User = require("../model/userModel")
 const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
+const User = require("../model/userModel") 
+const generateToken = require("../config/jwtToken") 
 
  const createUser = asyncHandler(async (req, res, next) => {
     const { username, password, email, mobile } = req.body;
@@ -17,7 +19,6 @@ const asyncHandler = require("express-async-handler");
   
     // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("encrypted password", hashedPassword);
     try {
       const newUser = await User.create({
         username,
@@ -33,4 +34,30 @@ const asyncHandler = require("express-async-handler");
     }
   });
 
-module.exports = createUser
+  const loginUser = asyncHandler(async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const accessToken = generateToken(user.id); 
+
+        return res.status(200).json({ accessToken, message:'login sucessfully' });
+    } catch (error) {
+        console.error("Login Error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+module.exports = {createUser, loginUser}
